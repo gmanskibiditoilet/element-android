@@ -113,22 +113,28 @@ class FtueAuthCombinedServerSelectionFragment :
 
         views.chooseServerInput.editText().selectAll()
         views.chooseServerInput.editText().showKeyboard(true)
+
+        // MAS Error, to be displayed if current server only supports MAS.
+        showMasErrorIfEnabled(state.selectedHomeserver.hasOidcCompatibilityFlow)
     }
 
     override fun onError(throwable: Throwable) {
-        val isMasSupportRequiredException = throwable is MasSupportRequiredException
         views.chooseServerInput.error = when {
             throwable.isHomeserverUnavailable() -> getString(CommonStrings.login_error_homeserver_not_found)
-            isMasSupportRequiredException -> " "
             else -> errorFormatter.toHumanReadable(throwable)
         }
-        views.chooseServerCardErrorMas.isVisible = isMasSupportRequiredException
-        views.chooseServerCardDownloadReplacementApp.isVisible = isMasSupportRequiredException
-        if (isMasSupportRequiredException) {
-            views.chooseServerSubmit.isEnabled = false
-        }
+        showMasErrorIfEnabled(throwable is MasSupportRequiredException)
+    }
+
+    private fun showMasErrorIfEnabled(show: Boolean) {
         val config = Config.sunsetConfig
-        if (throwable is MasSupportRequiredException && config is SunsetConfig.Enabled) {
+        if (config is SunsetConfig.Enabled) {
+            views.chooseServerInput.error = if (show) " " else ""
+            views.chooseServerSubmit.isEnabled = false
+
+            views.chooseServerCardErrorMas.isVisible = show
+            views.chooseServerCardDownloadReplacementApp.isVisible = show
+
             views.chooseServerCardErrorMas.findViewById<TextView>(R.id.view_card_error_title).text =
                     getString(CommonStrings.error_mas_not_supported_title, views.chooseServerInput.content())
             views.chooseServerCardErrorMas.findViewById<TextView>(R.id.view_card_error_subtitle).text =
