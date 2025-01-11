@@ -11,6 +11,10 @@ import os
 import os.path
 # Run `pip3 install requests` if not installed yet
 import requests
+import matplotlib
+import pyplot as plt
+import pandas as pd
+import scipy
 
 ### Arguments
 
@@ -92,4 +96,4 @@ for lang in cumul:
     write_file(os.path.join(data_defs_dir, "values-" + androidLang + "/strings_sas.xml"), cumul[lang])
 
 print()
-print("Success!")
+print("Operation successful!")
